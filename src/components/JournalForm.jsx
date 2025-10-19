@@ -16,7 +16,7 @@ export default function JournalForm({ onAdd }) {
       if (image) formData.append("image", image);
 
       const res = await axios.post(
-        "http://localhost:3000/api/journal/add",
+        "https://journal-server-86z8.onrender.com/api/journal/add",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

@@ -19,7 +19,7 @@ export default function App() {
   // Fetch journal entries
   const fetchEntries = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/journal/");
+      const res = await axios.get("https://journal-server-86z8.onrender.com/api/journal/");
       if (res.data.success) setEntries(res.data.entries);
     } catch (err) {
       console.error(err);
@@ -35,7 +35,7 @@ export default function App() {
   // Login handler
   const handleLogin = async (user, pass) => {
     try {
-      const res = await axios.post("http://localhost:3000/api/auth/login", {
+      const res = await axios.post("https://journal-server-86z8.onrender.com/api/auth/login", {
         username: user,
         password: pass,
       });
@@ -58,7 +58,7 @@ export default function App() {
 
   // Logout handler
   const handleLogout = async () => {
-    await axios.post("http://localhost:3000/api/auth/logout");
+    await axios.post("https://journal-server-86z8.onrender.com/api/auth/logout");
     setIsAuthenticated(false);
     setUsername("");
     setEntries([]);
