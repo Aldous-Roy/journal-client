@@ -58,7 +58,6 @@ export default function JournalForm({ onAdd }) {
         onChange={(e) => setImage(e.target.files[0])}
         className={styles.fileInput}
       />
-      {/* Styled label as button */}
       <label htmlFor="imageUpload" className={styles.fileLabel}>
         {image ? image.name : "Choose Image"}
       </label>

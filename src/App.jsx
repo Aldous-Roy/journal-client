@@ -26,32 +26,49 @@ export default function App() {
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "0 auto", padding: "20px", fontFamily: "Arial, sans-serif" }}>
+    <div
+      style={{
+        maxWidth: "600px",
+        margin: "0 auto",
+        padding: "20px",
+        fontFamily: "'Arial', sans-serif",
+        backgroundColor: "#fff0f6",
+        minHeight: "100vh",
+      }}
+    >
+      {/* Header */}
       <h1
         style={{
           textAlign: "center",
           fontSize: "2.5rem",
           color: "#ff6b81",
-          textShadow: "1px 1px 2px rgba(0,0,0,0.2)",
+          textShadow: "1px 1px 4px rgba(0,0,0,0.2)",
           marginBottom: "20px",
         }}
       >
         Couple Journal 💖
       </h1>
-
-      {/* Navbar */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: "20px",
+          flexWrap: "wrap",
+          gap: "10px",
+        }}
+      >
         <button
           onClick={() => setActiveTab("add")}
           style={{
+            flex: "1 1 120px",
             padding: "10px 20px",
-            marginRight: "10px",
-            borderRadius: "8px",
+            borderRadius: "20px",
             border: "none",
             cursor: "pointer",
-            backgroundColor: activeTab === "add" ? "#ff6b81" : "#eee",
-            color: activeTab === "add" ? "#fff" : "#333",
+            backgroundColor: activeTab === "add" ? "#ff9bb5" : "#ffe6ee",
+            color: activeTab === "add" ? "#fff" : "#ff6b81",
             fontWeight: "bold",
+            transition: "all 0.3s",
           }}
         >
           Add Journal
@@ -59,13 +76,15 @@ export default function App() {
         <button
           onClick={() => setActiveTab("list")}
           style={{
+            flex: "1 1 120px",
             padding: "10px 20px",
-            borderRadius: "8px",
+            borderRadius: "20px",
             border: "none",
             cursor: "pointer",
-            backgroundColor: activeTab === "list" ? "#ff6b81" : "#eee",
-            color: activeTab === "list" ? "#fff" : "#333",
+            backgroundColor: activeTab === "list" ? "#ff9bb5" : "#ffe6ee",
+            color: activeTab === "list" ? "#fff" : "#ff6b81",
             fontWeight: "bold",
+            transition: "all 0.3s",
           }}
         >
           View Journals
