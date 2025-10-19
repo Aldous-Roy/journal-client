@@ -2,11 +2,21 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import JournalForm from "./components/JournalForm";
 import JournalList from "./components/JournalList";
+import LoginForm from "./components/LoginForm";
 
 export default function App() {
   const [entries, setEntries] = useState([]);
-  const [activeTab, setActiveTab] = useState("add"); // "add" or "list"
+  const [activeTab, setActiveTab] = useState("add");
 
+  // Load authentication state from localStorage
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    localStorage.getItem("isAuthenticated") === "true"
+  );
+  const [username, setUsername] = useState(
+    localStorage.getItem("username") || ""
+  );
+
+  // Fetch journal entries
   const fetchEntries = async () => {
     try {
       const res = await axios.get("http://localhost:3000/api/journal/");
@@ -16,14 +26,54 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    fetchEntries();
-  }, []);
-
+  // Add new journal entry
   const handleAdd = (entry) => {
     setEntries([entry, ...entries]);
-    setActiveTab("list"); // switch to list after adding
+    setActiveTab("list");
   };
+
+  // Login handler
+  const handleLogin = async (user, pass) => {
+    try {
+      const res = await axios.post("http://localhost:3000/api/auth/login", {
+        username: user,
+        password: pass,
+      });
+      if (res.data.isAuthenticated) {
+        setIsAuthenticated(true);
+        setUsername(user);
+
+        // Save login state to localStorage
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("username", user);
+
+        fetchEntries();
+      } else {
+        alert(res.data.message);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Logout handler
+  const handleLogout = async () => {
+    await axios.post("http://localhost:3000/api/auth/logout");
+    setIsAuthenticated(false);
+    setUsername("");
+    setEntries([]);
+
+    // Clear localStorage
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("username");
+  };
+
+  // Fetch entries on app load if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchEntries();
+    }
+  }, [isAuthenticated]);
 
   return (
     <div
@@ -31,12 +81,11 @@ export default function App() {
         maxWidth: "600px",
         margin: "0 auto",
         padding: "20px",
-        fontFamily: "'Arial', sans-serif",
+        fontFamily: "Arial, sans-serif",
         backgroundColor: "#fff0f6",
         minHeight: "100vh",
       }}
     >
-      {/* Header */}
       <h1
         style={{
           textAlign: "center",
@@ -46,56 +95,80 @@ export default function App() {
           marginBottom: "20px",
         }}
       >
-        Couple Journal 💖
+        💖 Couple Journal 💖
       </h1>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "20px",
-          flexWrap: "wrap",
-          gap: "10px",
-        }}
-      >
-        <button
-          onClick={() => setActiveTab("add")}
-          style={{
-            flex: "1 1 120px",
-            padding: "10px 20px",
-            borderRadius: "20px",
-            border: "none",
-            cursor: "pointer",
-            backgroundColor: activeTab === "add" ? "#ff9bb5" : "#ffe6ee",
-            color: activeTab === "add" ? "#fff" : "#ff6b81",
-            fontWeight: "bold",
-            transition: "all 0.3s",
-          }}
-        >
-          Add Journal
-        </button>
-        <button
-          onClick={() => setActiveTab("list")}
-          style={{
-            flex: "1 1 120px",
-            padding: "10px 20px",
-            borderRadius: "20px",
-            border: "none",
-            cursor: "pointer",
-            backgroundColor: activeTab === "list" ? "#ff9bb5" : "#ffe6ee",
-            color: activeTab === "list" ? "#fff" : "#ff6b81",
-            fontWeight: "bold",
-            transition: "all 0.3s",
-          }}
-        >
-          View Journals
-        </button>
-      </div>
 
-      {/* Conditional rendering */}
-      {activeTab === "add" ? (
-        <JournalForm onAdd={handleAdd} />
+      {!isAuthenticated ? (
+        <LoginForm onLogin={handleLogin} />
       ) : (
-        <JournalList entries={entries} />
+        <>
+          {/* Navbar */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "20px",
+              flexWrap: "wrap",
+              gap: "10px",
+            }}
+          >
+            <button
+              onClick={() => setActiveTab("add")}
+              style={{
+                flex: "1 1 120px",
+                padding: "10px 20px",
+                borderRadius: "20px",
+                border: "none",
+                cursor: "pointer",
+                backgroundColor: activeTab === "add" ? "#ff9bb5" : "#ffe6ee",
+                color: activeTab === "add" ? "#fff" : "#ff6b81",
+                fontWeight: "bold",
+                transition: "all 0.3s",
+              }}
+            >
+              Add Journal
+            </button>
+            <button
+              onClick={() => setActiveTab("list")}
+              style={{
+                flex: "1 1 120px",
+                padding: "10px 20px",
+                borderRadius: "20px",
+                border: "none",
+                cursor: "pointer",
+                backgroundColor: activeTab === "list" ? "#ff9bb5" : "#ffe6ee",
+                color: activeTab === "list" ? "#fff" : "#ff6b81",
+                fontWeight: "bold",
+                transition: "all 0.3s",
+              }}
+            >
+              View Journals
+            </button>
+            <button
+              onClick={handleLogout}
+              style={{
+                flex: "1 1 120px",
+                padding: "10px 20px",
+                borderRadius: "20px",
+                border: "none",
+                cursor: "pointer",
+                backgroundColor: "#ff6b81",
+                color: "#fff",
+                fontWeight: "bold",
+                transition: "all 0.3s",
+              }}
+            >
+              Logout
+            </button>
+          </div>
+
+          {/* Conditional content */}
+          {activeTab === "add" ? (
+            <JournalForm onAdd={handleAdd} />
+          ) : (
+            <JournalList entries={entries} />
+          )}
+        </>
       )}
     </div>
   );
