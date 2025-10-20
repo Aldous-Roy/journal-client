@@ -3,12 +3,15 @@ import axios from "axios";
 import JournalForm from "./components/JournalForm";
 import JournalList from "./components/JournalList";
 import LoginForm from "./components/LoginForm";
+import RomanticLoader from "./components/RomanticLoader";
 
 export default function App() {
   const [entries, setEntries] = useState([]);
   const [activeTab, setActiveTab] = useState("add");
 
-  // Load authentication state from localStorage
+  const [loading, setLoading] = useState(false); // 🩷 new loading state
+
+  // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(
     localStorage.getItem("isAuthenticated") === "true"
   );
@@ -19,10 +22,15 @@ export default function App() {
   // Fetch journal entries
   const fetchEntries = async () => {
     try {
-      const res = await axios.get("https://journal-server-86z8.onrender.com/api/journal/");
+      setLoading(true);
+      const res = await axios.get(
+        "https://journal-server-86z8.onrender.com/api/journal/"
+      );
       if (res.data.success) setEntries(res.data.entries);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,37 +43,45 @@ export default function App() {
   // Login handler
   const handleLogin = async (user, pass) => {
     try {
-      const res = await axios.post("https://journal-server-86z8.onrender.com/api/auth/login", {
-        username: user,
-        password: pass,
-      });
+      setLoading(true);
+      const res = await axios.post(
+        "https://journal-server-86z8.onrender.com/api/auth/login",
+        {
+          username: user,
+          password: pass,
+        }
+      );
       if (res.data.isAuthenticated) {
         setIsAuthenticated(true);
         setUsername(user);
-
-        // Save login state to localStorage
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("username", user);
-
-        fetchEntries();
+        await fetchEntries();
       } else {
         alert(res.data.message);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   // Logout handler
   const handleLogout = async () => {
-    await axios.post("https://journal-server-86z8.onrender.com/api/auth/logout");
-    setIsAuthenticated(false);
-    setUsername("");
-    setEntries([]);
-
-    // Clear localStorage
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("username");
+    try {
+      setLoading(true);
+      await axios.post("https://journal-server-86z8.onrender.com/api/auth/logout");
+      setIsAuthenticated(false);
+      setUsername("");
+      setEntries([]);
+      localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("username");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Fetch entries on app load if already logged in
@@ -74,6 +90,23 @@ export default function App() {
       fetchEntries();
     }
   }, [isAuthenticated]);
+
+  // 💖 show romantic loader while fetching
+  if (loading) {
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#fff0f6",
+        }}
+      >
+        <RomanticLoader />
+      </div>
+    );
+  }
 
   return (
     <div
